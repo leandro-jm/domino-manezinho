@@ -1,0 +1,67 @@
+# Produção num servidor só: Postgres + app. Coloque um proxy com HTTPS na frente
+# (Caddy/Traefik/nginx) — push e instalação do PWA exigem HTTPS.
+# Uso: docker compose -f infra/docker-compose.prod.yml --env-file infra/.env.prod up -d --build
+name: domino-manezinho-prod
+
+# Logs do Docker giram (sem isso crescem até encher o disco).
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "5"
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: domino
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD}
+      POSTGRES_DB: domino
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U domino"]
+      interval: 5s
+      retries: 20
+    logging: *logging
+
+  app:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://domino:${POSTGRES_PASSWORD}@postgres:5432/domino
+      JWT_SECRET: ${JWT_SECRET:?defina JWT_SECRET}
+      CORS_ORIGIN: ${PUBLIC_URL:-}
+      VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY:-}
+      VAPID_PRIVATE_KEY: ${VAPID_PRIVATE_KEY:-}
+      VAPID_SUBJECT: ${VAPID_SUBJECT:-mailto:contato@dominomanezinho.app}
+      # O proxy com HTTPS na frente é o único salto confiável para ler o IP real (limite de requisições).
+      TRUST_PROXY: ${TRUST_PROXY:-1}
+      # Scrape do Prometheus em /api/metrics com "Authorization: Bearer <token>". Vazio = sem métricas.
+      METRICS_TOKEN: ${METRICS_TOKEN:-}
+      BOT_WORKERS: ${BOT_WORKERS:-}
+    ports:
+      # Só na interface local: o acesso de fora passa pelo proxy com HTTPS. Mude APP_BIND se o proxy estiver noutra máquina.
+      - "${APP_BIND:-127.0.0.1}:3001:3001"
+    volumes:
+      # Mesas em andamento e resultados pendentes: sobrevivem a deploy e reinício.
+      - appstate:/app/state
+    # Tempo para salvar as mesas no desligamento antes do Docker forçar.
+    stop_grace_period: 30s
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3001/api/health/live').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      start_period: 30s
+      retries: 3
+    logging: *logging
+
+volumes:
+  pgdata:
+  appstate:

@@ -1,0 +1,4 @@
+Modelos e animações de gente: Quaternius (https://quaternius.com), licença CC0 1.0 (domínio público).
+- Universal Base Characters [Standard]
+- Universal Animation Library [Standard]
+Gerados por apps/web/scripts/build-characters.mjs.

@@ -1,0 +1,113 @@
+# Dominó Manezinho no Dokploy (Docker Compose): app + Postgres + backup do banco.
+# Passo a passo no README ("Deploy no Dokploy"). Resumo:
+#   - Compose Path: ./docker-compose.dokploy.yml
+#   - Environment: POSTGRES_PASSWORD, JWT_SECRET, PUBLIC_URL (e as opcionais abaixo)
+#   - Domains: serviço "app", porta 3001, HTTPS ligado
+# Sem "ports": quem recebe o tráfego é o Traefik do Dokploy, pelo domínio configurado na tela.
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "5"
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: domino
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD no Environment do Dokploy}
+      POSTGRES_DB: domino
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U domino"]
+      interval: 5s
+      retries: 20
+    logging: *logging
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    expose:
+      - "3001"
+    # dokploy-network: onde o Traefik do Dokploy alcança o app. default: onde está o banco (que não fica
+    # exposto aos outros apps do Dokploy). As duas explícitas: só a do Dokploy deixaria o app sem banco.
+    networks:
+      - default
+      - dokploy-network
+    environment:
+      DATABASE_URL: postgresql://domino:${POSTGRES_PASSWORD}@postgres:5432/domino
+      JWT_SECRET: ${JWT_SECRET:?defina JWT_SECRET no Environment do Dokploy}
+      # Endereço público (https://...), o mesmo do domínio: é a origem liberada no CORS.
+      CORS_ORIGIN: ${PUBLIC_URL:?defina PUBLIC_URL no Environment do Dokploy}
+      VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY:-}
+      VAPID_PRIVATE_KEY: ${VAPID_PRIVATE_KEY:-}
+      VAPID_SUBJECT: ${VAPID_SUBJECT:-mailto:contato@exemplo.com}
+      # O Traefik do Dokploy é um salto; com Cloudflare (proxy laranja) na frente, use 2.
+      TRUST_PROXY: ${TRUST_PROXY:-1}
+      METRICS_TOKEN: ${METRICS_TOKEN:-}
+      BOT_WORKERS: ${BOT_WORKERS:-}
+    volumes:
+      # Mesas em andamento e resultados pendentes: um redeploy não derruba partida.
+      - appstate:/app/state
+    # Tempo pra salvar as mesas no desligamento antes do Docker forçar.
+    stop_grace_period: 30s
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3001/api/health/live').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      start_period: 60s
+      retries: 3
+    logging: *logging
+
+  # Dump do banco de hora em hora no volume "pgbackups" (guarda os últimos BACKUP_KEEP).
+  # Pra ter cópia fora do servidor, ligue o Volume Backups do Dokploy nesse volume (destino S3).
+  backup:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGHOST: postgres
+      PGUSER: domino
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      PGDATABASE: domino
+      BACKUP_EVERY_SECONDS: ${BACKUP_EVERY_SECONDS:-3600}
+      BACKUP_KEEP: ${BACKUP_KEEP:-48}
+    volumes:
+      - pgbackups:/backups
+    entrypoint: ["/bin/sh", "-c"]
+    # $$ = $ pro shell do container (o compose não substitui).
+    command:
+      - |
+        set -u -o pipefail
+        while true; do
+          file="/backups/domino-$$(date +%Y%m%d-%H%M%S).sql.gz"
+          # Escreve num temporário e só renomeia se o dump terminou: backup pela metade nunca fica com nome de bom.
+          if pg_dump --no-owner --clean --if-exists | gzip > "$$file.tmp" && mv "$$file.tmp" "$$file"; then
+            echo "$$(date -Iseconds) backup ok: $$file"
+          else
+            rm -f "$$file.tmp"
+            echo "$$(date -Iseconds) ERRO: backup falhou" >&2
+          fi
+          ls -1t /backups/domino-*.sql.gz 2>/dev/null | tail -n +"$$((BACKUP_KEEP + 1))" | xargs -r rm -f
+          sleep "$$BACKUP_EVERY_SECONDS"
+        done
+    logging: *logging
+
+networks:
+  dokploy-network:
+    external: true
+
+volumes:
+  pgdata:
+  appstate:
+  pgbackups:

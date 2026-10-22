@@ -1,0 +1,26 @@
+{
+  "name": "domino-manezinho",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm --parallel --filter @domino/server --filter @domino/web dev",
+    "test": "pnpm -r test",
+    "typecheck": "pnpm -r typecheck",
+    "e2e": "playwright test -c e2e/playwright.config.ts",
+    "build": "pnpm --filter @domino/web build",
+    "sim": "pnpm --filter @domino/bots sim"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
+    "@playwright/test": "^1.64.1",
+    "@types/node": "^26.6.5",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.4",
+    "vitest": "^5.0.5"
+  },
+  "packageManager": "pnpm@11.5.1",
+  "engines": {
+    "node": ">=24"
+  }
+}

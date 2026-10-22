@@ -1,0 +1,49 @@
+name: Deu ruim (bug)
+description: Algo não funciona como devia.
+labels: [bug]
+body:
+  - type: textarea
+    id: o-que
+    attributes:
+      label: O que aconteceu
+      description: E o que tu esperava que acontecesse.
+    validations:
+      required: true
+  - type: textarea
+    id: passos
+    attributes:
+      label: Como reproduzir
+      placeholder: |
+        1. Abri um treino contra o Monstro
+        2. Na segunda mão, toquei na pedra 3-5
+        3. ...
+    validations:
+      required: true
+  - type: dropdown
+    id: onde
+    attributes:
+      label: Onde
+      options:
+        - Treino (offline)
+        - Partida online
+        - Lobby / sala
+        - Perfil / ranking / histórico
+        - Instalação (PWA) ou notificação
+        - Servidor / deploy
+    validations:
+      required: true
+  - type: input
+    id: aparelho
+    attributes:
+      label: Aparelho e navegador
+      placeholder: iPhone 13 com Safari, app instalado; ou Windows com Chrome 140
+  - type: dropdown
+    id: qualidade
+    attributes:
+      label: Qualidade do cenário
+      options: [Automática, Mesa 2D, Baixa, Média, Alta, Não sei]
+  - type: textarea
+    id: extra
+    attributes:
+      label: Print, vídeo ou erro do console
+      description: Ajuda muito. Não cole tokens nem dados de outras pessoas.

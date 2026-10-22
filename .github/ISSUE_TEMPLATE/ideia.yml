@@ -1,0 +1,21 @@
+name: Ideia
+description: Funcionalidade nova, regra da praça, personagem, fala...
+labels: [ideia]
+body:
+  - type: textarea
+    id: ideia
+    attributes:
+      label: A ideia
+      description: O que tu queria que o jogo fizesse?
+    validations:
+      required: true
+  - type: textarea
+    id: por-que
+    attributes:
+      label: Por quê
+      description: Que situação isso resolve ou deixa mais divertida?
+  - type: textarea
+    id: como
+    attributes:
+      label: Como poderia funcionar
+      description: Opcional. Tela, regra, exemplo de partida.

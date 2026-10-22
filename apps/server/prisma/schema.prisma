@@ -1,0 +1,128 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "esm"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Player {
+  id            String   @id @default(cuid())
+  nickname      String
+  /// Sufixo de 4 dígitos: Apelido#1234.
+  tag           String
+  avatarId      String
+  rating        Int      @default(1000)
+  games         Int      @default(0)
+  wins          Int      @default(0)
+  practiceGames Int      @default(0)
+  practiceWins  Int      @default(0)
+  carrocas      Int      @default(0)
+  laelos        Int      @default(0)
+  cruzadas      Int      @default(0)
+  streak        Int      @default(0)
+  bestStreak    Int      @default(0)
+  /// Reservado para login futuro (google, apple). Nulo = identidade só por token.
+  authProvider  String?
+  /// Sobe a cada transferência de aparelho: tokens com versão antiga deixam de valer.
+  tokenVersion  Int      @default(0)
+  /// Notificações por tipo (tua vez, convite, mesa cheia); a inscrição do aparelho é o liga/desliga geral.
+  pushTurn      Boolean  @default(true)
+  pushInvite    Boolean  @default(true)
+  pushFull      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  lastSeenAt    DateTime @default(now())
+
+  matches           MatchPlayer[]
+  pushSubscriptions PushSubscription[]
+  transferCodes     TransferCode[]
+
+  @@unique([nickname, tag])
+  @@index([rating])
+  @@index([practiceWins])
+}
+
+model Match {
+  id          String    @id @default(cuid())
+  roomCode    String
+  scoring     String
+  targetScore Int
+  galo        Boolean   @default(false)
+  rated       Boolean
+  startedAt   DateTime
+  endedAt     DateTime?
+  winnerTeam  Int?
+  /// Placar final [dupla 0, dupla 1]; nulo nas partidas gravadas antes do histórico.
+  scores      Json?
+
+  players MatchPlayer[]
+  hands   Hand[]
+
+  @@index([endedAt])
+  // Ranking semanal e limite contra o mesmo adversário filtram partidas valendo por data.
+  @@index([rated, endedAt])
+}
+
+model MatchPlayer {
+  id           String  @id @default(cuid())
+  matchId      String
+  match        Match   @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  playerId     String?
+  player       Player? @relation(fields: [playerId], references: [id], onDelete: SetNull)
+  botLevel     String?
+  /// Personagem do bot na mesa (o humano usa o apelido atual do jogador).
+  botNickname  String?
+  botAvatarId  String?
+  seat         Int
+  team         Int
+  /// Rating do humano antes da partida; nulo nas partidas antigas.
+  ratingBefore Int?
+  ratingDelta  Int     @default(0)
+
+  @@unique([matchId, seat])
+  @@index([playerId])
+}
+
+model Hand {
+  id         String  @id @default(cuid())
+  matchId    String
+  match      Match   @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  number     Int
+  /// 'batida' | 'trancado'
+  result     String
+  /// Tipo da batida (simples, carroca, laelo, cruzada); nulo no trancado.
+  kind       String?
+  winnerTeam Int?
+  points     Int
+  moves      Json
+  /// Ids das pedras dadas a cada cadeira (dá pra refazer a mão); nulo nas partidas antigas.
+  dealt      Json?
+
+  @@unique([matchId, number])
+}
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  playerId  String
+  player    Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+
+  @@index([playerId])
+}
+
+model TransferCode {
+  id        String   @id @default(cuid())
+  code      String   @unique
+  playerId  String
+  player    Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([playerId])
+  @@index([expiresAt])
+}

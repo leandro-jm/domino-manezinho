@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "Player" ADD COLUMN     "pushFull" BOOLEAN NOT NULL DEFAULT true,
+ADD COLUMN     "pushInvite" BOOLEAN NOT NULL DEFAULT true,
+ADD COLUMN     "pushTurn" BOOLEAN NOT NULL DEFAULT true;

@@ -1,0 +1,13 @@
+**/node_modules
+**/dist
+**/dev-dist
+**/.env
+**/src/generated
+e2e
+test-results
+playwright-report
+.git
+backups
+**/.state
+# Originais da arte: só os scripts manuais usam (o app usa os recortes em apps/web/public).
+apps/web/art

@@ -1,0 +1,20 @@
+name: domino-manezinho
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: domino
+      POSTGRES_PASSWORD: domino
+      POSTGRES_DB: domino
+    ports:
+      - "5442:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U domino"]
+      interval: 3s
+      retries: 20
+
+volumes:
+  pgdata:
