@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useLocation } from 'wouter';
 import { INITIAL_RATING, rankTitle } from '@domino/shared';
 import { Avatar } from '../components/Avatar';
+import { SobreProjetoBotao } from '../components/SobreProjetoBotao';
 import { savedOfflineGame, startOfflineGame } from '../offline/controller';
 import { useInstall } from '../lib/install';
 import { isIOS, isStandalone } from '../lib/push';
@@ -104,6 +105,7 @@ export function HomeScreen() {
         <Link href="/como-jogar" className="btn">
           📖 Como se joga
         </Link>
+        <SobreProjetoBotao />
         {install.prompt && (
           <button className="btn" onClick={() => void install.install()}>
             📲 Instalar app
