@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
-import { flagEnabled, sobreProjetoBotao } from '../lib/flags';
+import { flagEnabled, setRuntimeFlags, sobreProjetoBotao } from '../lib/flags';
 import { SobreProjetoDialog } from './SobreProjetoDialog';
 
 const html = renderToStaticMarkup(createElement(SobreProjetoDialog, { onClose: () => {} }));
@@ -15,6 +15,15 @@ describe('flag sobre-projeto-botao', () => {
   it('liga com true/1', () => {
     expect(sobreProjetoBotao({ VITE_FLAG_SOBRE_PROJETO_BOTAO: 'true' })).toBe(true);
     expect(sobreProjetoBotao({ VITE_FLAG_SOBRE_PROJETO_BOTAO: '1' })).toBe(true);
+  });
+});
+
+describe('flag sobre-projeto-botao em runtime', () => {
+  it('liga quando o servidor devolve a flag e desliga sem ela', () => {
+    setRuntimeFlags(['sobre-projeto-botao']);
+    expect(sobreProjetoBotao({})).toBe(true);
+    setRuntimeFlags([]);
+    expect(sobreProjetoBotao({})).toBe(false);
   });
 });
 

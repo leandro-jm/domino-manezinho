@@ -430,4 +430,14 @@ describe('ranking, amigos e push', () => {
     expect(res.json()).toMatchObject({ ok: true, db: true });
     expect((await s.app.inject({ url: '/api/health/live' })).json()).toEqual({ ok: true });
   });
+
+  it('GET /api/flags devolve as flags de FEATURE_FLAGS (runtime), desligadas por padrão', async () => {
+    const { loadConfig } = await import('../src/config');
+    expect(loadConfig({ FEATURE_FLAGS: ' sobre-projeto-botao, outra ,,' } as NodeJS.ProcessEnv).featureFlags).toEqual([
+      'sobre-projeto-botao',
+      'outra',
+    ]);
+    expect(loadConfig({} as NodeJS.ProcessEnv).featureFlags).toEqual([]);
+    expect((await s.app.inject({ url: '/api/flags' })).json()).toEqual({ flags: [] });
+  });
 });
