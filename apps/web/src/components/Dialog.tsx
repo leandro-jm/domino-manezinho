@@ -8,11 +8,14 @@ const FOCUSABLE = 'button, [href], input, select, textarea, summary, [tabindex]:
  */
 export function Dialog({
   label,
+  labelledBy,
   onClose,
   className = '',
   children,
 }: {
-  label: string;
+  label?: string;
+  /** id do título dentro do diálogo; tem precedência sobre `label`. */
+  labelledBy?: string;
   onClose?: () => void;
   className?: string;
   children: ReactNode;
@@ -57,7 +60,8 @@ export function Dialog({
       className={`overlay ${className}`}
       role="dialog"
       aria-modal="true"
-      aria-label={label}
+      aria-label={labelledBy ? undefined : label}
+      aria-labelledby={labelledBy}
       onClick={(e) => e.target === e.currentTarget && close.current?.()}
     >
       <div className="overlay-card" ref={box}>
