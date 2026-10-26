@@ -143,6 +143,9 @@ export const socialRoutes = (app: FastifyInstance, ctx: AppContext): void => {
     return reply.code(204).send();
   });
 
+  // Feature flags ligadas em runtime (FEATURE_FLAGS); o PWA consulta ao abrir.
+  app.get('/api/flags', async (_req, reply) => reply.header('Cache-Control', 'no-store').send({ flags: ctx.config.featureFlags }));
+
   // Processo de pé (health check do container). Banco fora não conta: as mesas seguem em memória,
   // e reiniciar o app nessa hora só derrubaria partida.
   app.get('/api/health/live', async () => ({ ok: true }));

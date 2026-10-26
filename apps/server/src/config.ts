@@ -22,6 +22,8 @@ export interface ServerConfig {
   rateLimit: boolean;
   /** Token do scrape de /api/metrics (Bearer). Sem ele o endpoint nem existe. */
   metricsToken: string | null;
+  /** Feature flags ligadas em runtime (FEATURE_FLAGS, separadas por vírgula); o front lê em /api/flags. */
+  featureFlags: string[];
   /** Hosts aceitos como endpoint de push (sufixo de domínio); evita o servidor postar em URL arbitrária. */
   pushHosts: string[];
   timings: Timings;
@@ -136,6 +138,7 @@ export const loadConfig = (env: NodeJS.ProcessEnv = process.env): ServerConfig =
     trustProxy: proxy(env.TRUST_PROXY),
     rateLimit: env.RATE_LIMIT !== 'false',
     metricsToken: env.METRICS_TOKEN || null,
+    featureFlags: (env.FEATURE_FLAGS ?? '').split(',').map((f) => f.trim()).filter(Boolean),
     pushHosts: pushHosts?.length ? pushHosts : DEFAULT_PUSH_HOSTS,
     timings: {
       botDelayMs: range(env.BOT_DELAY_MS, DEFAULT_TIMINGS.botDelayMs),

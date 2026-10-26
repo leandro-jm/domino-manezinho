@@ -54,6 +54,8 @@ services:
       TRUST_PROXY: ${TRUST_PROXY:-1}
       METRICS_TOKEN: ${METRICS_TOKEN:-}
       BOT_WORKERS: ${BOT_WORKERS:-}
+      # Feature flags ligadas em runtime, separadas por vírgula (ex.: sobre-projeto-botao).
+      FEATURE_FLAGS: ${FEATURE_FLAGS:-}
     volumes:
       # Mesas em andamento e resultados pendentes: um redeploy não derruba partida.
       - appstate:/app/state
