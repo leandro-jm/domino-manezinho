@@ -45,8 +45,10 @@ services:
     environment:
       DATABASE_URL: postgresql://domino:${POSTGRES_PASSWORD}@postgres:5432/domino
       JWT_SECRET: ${JWT_SECRET:?defina JWT_SECRET no Environment do Dokploy}
-      # Endereço público (https://...), o mesmo do domínio: é a origem liberada no CORS.
+      # Endereço público (https://...), o mesmo do domínio: é a origem liberada no CORS e o endereço
+      # do canonical, sitemap e imagem de compartilhamento (Google, WhatsApp).
       CORS_ORIGIN: ${PUBLIC_URL:?defina PUBLIC_URL no Environment do Dokploy}
+      PUBLIC_URL: ${PUBLIC_URL}
       VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY:-}
       VAPID_PRIVATE_KEY: ${VAPID_PRIVATE_KEY:-}
       VAPID_SUBJECT: ${VAPID_SUBJECT:-mailto:contato@exemplo.com}

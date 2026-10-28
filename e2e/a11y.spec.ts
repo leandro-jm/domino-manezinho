@@ -22,7 +22,7 @@ const violations = async (page: Page) => {
 test('telas principais sem problema sério de acessibilidade, e dá pra jogar só com o teclado', async ({ browser }) => {
   const page = await newPlayer(browser, {}, '2d');
   await page.goto('/');
-  await page.waitForURL('**/bem-vindo');
+  await page.getByLabel('Apelido').waitFor();
   expect(await violations(page)).toEqual([]);
 
   await onboard(page, 'Teclado');

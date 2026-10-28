@@ -11,7 +11,16 @@ const Tile = ({ a, b }: { a: number; b: number }) => (
 export function HowToPlayScreen() {
   return (
     <main className="screen prose">
-      <ScreenHeader title="Como se joga na Praça XV" />
+      <ScreenHeader title="Como se joga dominó na Praça XV" />
+
+      <section className="card">
+        <h2>O dominó da Praça XV</h2>
+        <p>
+          No Centro de Florianópolis, na sombra da Figueira da Praça XV de Novembro, entre a Catedral e o Palácio Cruz e Sousa, as mesas
+          de concreto juntam manezinho de toda a Ilha pra bater dominó em duplas. As regras abaixo são as dessa mesa — as mesmas do
+          Dominó Manezinho, online ou no treino contra os bots.
+        </p>
+      </section>
 
       <section className="card">
         <h2>A mesa</h2>

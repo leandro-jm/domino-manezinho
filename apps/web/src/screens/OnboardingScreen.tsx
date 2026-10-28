@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useLocation } from 'wouter';
+import { Link, useLocation } from 'wouter';
 import { DEFAULT_AVATAR_ID, NICKNAME_MAX, avatarById, validateNickname } from '@domino/shared';
 import { Avatar } from '../components/Avatar';
 import { AvatarPicker } from '../components/AvatarPicker';
@@ -66,8 +66,12 @@ export function OnboardingScreen() {
       <div className="hero">
         <Avatar id={avatarId} size={96} />
         <div>
-          <h1>Chega mais, mané!</h1>
-          <p>A mesa de concreto da Praça XV tá te esperando. Escolhe teu personagem e como a turma vai te chamar.</p>
+          <p className="kicker">Praça XV de Novembro · Floripa</p>
+          <h1>Dominó Manezinho</h1>
+          <p>
+            <strong>Chega mais, mané!</strong> A mesa de concreto da Praça XV tá te esperando. Escolhe teu personagem e como a turma vai
+            te chamar.
+          </p>
         </div>
       </div>
 
@@ -120,6 +124,26 @@ export function OnboardingScreen() {
           </button>
         </form>
       )}
+
+      <section className="card prose about">
+        <h2>Dominó em duplas, do jeito da Praça XV</h2>
+        <p>
+          O Dominó Manezinho é um jogo de dominó online grátis com as regras da mesa de concreto da Praça XV de Novembro, embaixo da
+          Figueira, no Centro de Florianópolis. São 4 jogadores em duplas, 7 pedras pra cada um e sem compra: sai a carroça de sena e
+          vale batida, carroça, lá-e-ló e cruzada.
+        </p>
+        <p>
+          Cria a sala e chama a turma pelo WhatsApp, senta numa mesa aberta ou treina contra os bots — do Amador ao "É um monstro" —
+          até sem internet. Funciona no celular e no computador e instala como aplicativo.
+        </p>
+        <p>
+          Na mesa tem gente da Ilha da Magia: o manezinho da ilha, a rendeira de bilro, a benzedeira, o pescador da Barra, o Boi de
+          Mamão, a Bernunça e a bruxa do Cascaes, com os perus em volta comentando cada lance. Ó-lhó-lhó!
+        </p>
+        <p>
+          <Link href="/como-jogar">Como se joga dominó na Praça XV →</Link>
+        </p>
+      </section>
     </main>
   );
 }

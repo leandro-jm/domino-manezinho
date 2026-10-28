@@ -15,10 +15,11 @@ export const newPlayer = async (browser: Browser, options: Parameters<Browser['n
 };
 
 export const onboard = async (page: Page, nickname: string) => {
-  await page.waitForURL('**/bem-vindo');
-  await page.getByLabel('Apelido').fill(nickname);
+  // Sem perfil, a boas-vindas aparece na própria raiz ou em /bem-vindo (vindo de outra rota, como um convite).
+  const field = page.getByLabel('Apelido');
+  await field.fill(nickname);
   await page.getByRole('button', { name: 'Bora pra praça!' }).click();
-  await page.waitForURL((url) => !url.pathname.startsWith('/bem-vindo'));
+  await field.waitFor({ state: 'detached' });
 };
 
 const visible = (page: Page, selector: string) =>

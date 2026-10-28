@@ -1,10 +1,10 @@
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { resolve, sep } from 'node:path';
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
 import rateLimit from '@fastify/rate-limit';
 import fastifyStatic from '@fastify/static';
-import Fastify, { type FastifyInstance } from 'fastify';
+import Fastify, { type FastifyInstance, type FastifyReply, type FastifyRequest } from 'fastify';
 import type { ClientErrorKind, RoomInvite } from '@domino/shared';
 import { Server } from 'socket.io';
 import { createTokenService } from './auth';
@@ -17,6 +17,7 @@ import { persistMatch } from './persistence';
 import { toPublic } from './players';
 import { PushService, type PushSender } from './push';
 import { ResultQueue } from './results';
+import { renderPage, robotsTxt, sitemapXml } from './seo';
 import { StateStore } from './state';
 import { RoomManager } from './rooms/manager';
 import { Notifier } from './rooms/notifier';
@@ -173,6 +174,8 @@ export const buildServer = async (opts: BuildOptions = {}): Promise<BuiltServer>
     await app.register(fastifyStatic, {
       root: webDist,
       prefix: '/',
+      // O index.html sai pelo renderPage (título e canonical de cada rota), nunca cru.
+      index: false,
       cacheControl: false,
       // Arquivos com hash no nome são eternos; index, service worker e manifest sempre revalidam (senão o PWA não atualiza).
       setHeaders: (reply, filePath) => {
@@ -184,6 +187,17 @@ export const buildServer = async (opts: BuildOptions = {}): Promise<BuiltServer>
     app.log.warn(`WEB_DIST não encontrado: ${webDist}`);
   }
   const serveSpa = !!webDist && existsSync(resolve(webDist, 'index.html'));
+  const template = serveSpa ? readFileSync(resolve(webDist, 'index.html'), 'utf8') : '';
+  const originOf = (req: FastifyRequest) => config.publicUrl ?? `${req.protocol}://${req.host}`;
+  const sendPage = (req: FastifyRequest, reply: FastifyReply, path: string) =>
+    reply.header('Cache-Control', 'no-cache').type('text/html; charset=utf-8').send(renderPage(template, path, originOf(req)));
+  if (serveSpa) {
+    app.get('/', (req, reply) => sendPage(req, reply, '/'));
+    // O service worker guarda essa e serve em qualquer navegação offline: vai com os dados da home.
+    app.get('/index.html', (req, reply) => sendPage(req, reply, '/'));
+    app.get('/robots.txt', (req, reply) => reply.header('Cache-Control', 'no-cache').type('text/plain; charset=utf-8').send(robotsTxt(originOf(req))));
+    app.get('/sitemap.xml', (req, reply) => reply.header('Cache-Control', 'no-cache').type('application/xml; charset=utf-8').send(sitemapXml(originOf(req))));
+  }
 
   app.setNotFoundHandler((req, reply) => {
     const path = req.url.split('?')[0] ?? '';
@@ -191,7 +205,7 @@ export const buildServer = async (opts: BuildOptions = {}): Promise<BuiltServer>
     // com 200 faz o service worker guardar HTML no lugar do arquivo.
     const isFile = /\.[a-z0-9]+$/i.test(path.split('/').pop() ?? '');
     if (serveSpa && req.method === 'GET' && !isFile && !path.startsWith('/api') && !path.startsWith('/socket.io')) {
-      return reply.sendFile('index.html');
+      return sendPage(req, reply, path);
     }
     return reply.code(404).send({ error: 'Não achei isso aí.' });
   });

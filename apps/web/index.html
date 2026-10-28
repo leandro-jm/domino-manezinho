@@ -4,15 +4,103 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#1d2b24" />
-    <meta name="description" content="Dominó em duplas na mesa de concreto da Praça XV, com os amigos ou contra os bots." />
+    <!-- Título, descrição, canonical, og:url e robots são trocados pelo servidor conforme a rota (apps/server/src/seo.ts);
+         __ORIGEM__ vira o endereço público (PUBLIC_URL). -->
+    <title>Dominó Manezinho — Dominó online em duplas na Praça XV, Floripa</title>
+    <meta name="description" content="Jogo de dominó online grátis em duplas, do jeito da Praça XV de Florianópolis: chama os amigos pelo WhatsApp ou treina contra os bots, até sem internet. Coisa de mané!" />
+    <meta name="keywords" content="dominó, dominó online, jogo de dominó, jogar dominó online, dominó em duplas, dominó grátis, dominó com amigos, dominó contra o computador, dominó no celular, regras do dominó, carroça, lá-e-ló, Florianópolis, Floripa, Ilha da Magia, Santa Catarina, mané, manezinho, manezinho da ilha, Praça XV de Novembro, Figueira da Praça XV, Catedral de Florianópolis, Boi de Mamão, Bernunça, bruxa do Cascaes, rendeira de bilro, tainha" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <link rel="canonical" href="__ORIGEM__/" />
+    <meta name="application-name" content="Dominó Manezinho" />
+    <meta name="geo.region" content="BR-SC" />
+    <meta name="geo.placename" content="Florianópolis" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Dominó Manezinho" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:title" content="Dominó Manezinho — Dominó online em duplas na Praça XV, Floripa" />
+    <meta property="og:description" content="Jogo de dominó online grátis em duplas, do jeito da Praça XV de Florianópolis: chama os amigos pelo WhatsApp ou treina contra os bots, até sem internet. Coisa de mané!" />
+    <meta property="og:url" content="__ORIGEM__/" />
+    <meta property="og:image" content="__ORIGEM__/og-image.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Ilustração da Praça XV de Novembro, em Florianópolis, com a Figueira, a Catedral e a ponte Hercílio Luz" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Dominó Manezinho — Dominó online em duplas na Praça XV, Floripa" />
+    <meta name="twitter:description" content="Jogo de dominó online grátis em duplas, do jeito da Praça XV de Florianópolis: chama os amigos pelo WhatsApp ou treina contra os bots, até sem internet. Coisa de mané!" />
+    <meta name="twitter:image" content="__ORIGEM__/og-image.jpg" />
+
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <link rel="icon" href="/icons/icon-192.png" type="image/png" />
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
-    <title>Dominó Manezinho</title>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "@id": "__ORIGEM__/#site",
+            "name": "Dominó Manezinho",
+            "alternateName": ["Dominó Mané", "Dominó da Praça XV"],
+            "url": "__ORIGEM__/",
+            "inLanguage": "pt-BR"
+          },
+          {
+            "@type": ["VideoGame", "WebApplication"],
+            "@id": "__ORIGEM__/#jogo",
+            "name": "Dominó Manezinho",
+            "url": "__ORIGEM__/",
+            "image": "__ORIGEM__/og-image.jpg",
+            "description": "Dominó online grátis em duplas, com as regras da mesa de concreto da Praça XV de Novembro, em Florianópolis. Jogue com os amigos ou contra bots, no celular ou no computador, até sem internet.",
+            "inLanguage": "pt-BR",
+            "genre": ["Dominó", "Jogo de tabuleiro", "Jogo de mesa"],
+            "gamePlatform": ["Navegador", "Android", "iOS", "PC"],
+            "applicationCategory": "GameApplication",
+            "operatingSystem": "Qualquer (navegador)",
+            "playMode": ["MultiPlayer", "SinglePlayer", "CoOp"],
+            "numberOfPlayers": { "@type": "QuantitativeValue", "minValue": 1, "maxValue": 4 },
+            "isAccessibleForFree": true,
+            "offers": { "@type": "Offer", "price": "0", "priceCurrency": "BRL" },
+            "keywords": "dominó online, dominó em duplas, dominó grátis, Florianópolis, Floripa, Ilha da Magia, mané, manezinho, manezinho da ilha, Praça XV de Novembro, Boi de Mamão, Bernunça, bruxa do Cascaes",
+            "contentLocation": {
+              "@type": "Place",
+              "name": "Praça XV de Novembro",
+              "address": { "@type": "PostalAddress", "addressLocality": "Florianópolis", "addressRegion": "SC", "addressCountry": "BR" }
+            },
+            "isPartOf": { "@id": "__ORIGEM__/#site" }
+          }
+        ]
+      }
+    </script>
+    <style>
+      /* Abertura em HTML puro: é o que o Google e quem está sem JS veem; o React troca tudo ao montar. */
+      body { margin: 0; background: #1d2b24; color: #f4ecd6; font-family: system-ui, sans-serif; }
+      .abertura { max-width: 40rem; margin: 0 auto; padding: 3rem 1.25rem; line-height: 1.5; }
+      .abertura h1 { margin: 0 0 0.25rem; font-size: 2rem; }
+      .abertura a { color: #f2c14e; }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <main class="abertura">
+        <p>Praça XV de Novembro · Florianópolis</p>
+        <h1>Dominó Manezinho</h1>
+        <p>
+          Dominó online grátis em duplas, do jeito que se joga na mesa de concreto da Praça XV, embaixo da Figueira, no Centro de
+          Floripa. Chama os amigos pelo WhatsApp, entra numa mesa aberta ou treina contra os bots — até sem internet.
+        </p>
+        <ul>
+          <li>4 jogadores em duplas, 7 pedras cada, sem compra; sai com a carroça de sena.</li>
+          <li>Batida, carroça, lá-e-ló e cruzada; partida até 6, até 10 ou até 100 pontos, com galo.</li>
+          <li>Personagens da Ilha da Magia: o manezinho, a rendeira, a benzedeira, o pescador da Barra, o Boi de Mamão, a Bernunça e a bruxa do Cascaes.</li>
+          <li>Ranking, histórico de partidas e replay; instala no celular como aplicativo.</li>
+        </ul>
+        <p><a href="/como-jogar">Como se joga dominó na Praça XV</a></p>
+        <noscript><p>Pra sentar à mesa, ó-lhó-lhó, liga o JavaScript do navegador.</p></noscript>
+      </main>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

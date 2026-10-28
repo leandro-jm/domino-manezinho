@@ -109,7 +109,7 @@ O `docker-compose.dokploy.yml` sobe o app, o Postgres e um backup do banco de ho
    | --- | --- | --- |
    | `POSTGRES_PASSWORD` | sim | Senha do banco. Gere com `openssl rand -base64 24`. |
    | `JWT_SECRET` | sim | Assina a identidade dos jogadores. Gere com `openssl rand -base64 48`. **Trocar depois desloga todo mundo.** |
-   | `PUBLIC_URL` | sim | Endereço público com `https://`, igual ao domínio do passo 3. |
+   | `PUBLIC_URL` | sim | Endereço público com `https://`, igual ao domínio do passo 3. Também vira o canonical, o `sitemap.xml` e a imagem de compartilhamento que o Google e o WhatsApp leem. |
    | `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` | não | Notificações push. Gere o par com `npx web-push generate-vapid-keys`; o subject é `mailto:` com teu e-mail. Sem elas, o jogo funciona sem push. |
    | `TRUST_PROXY` | não | Padrão `1` (o Traefik). Com Cloudflare em modo proxy na frente, use `2`. |
    | `METRICS_TOKEN` | não | Liga `/api/metrics` (Prometheus) com esse token. |
@@ -132,6 +132,8 @@ gunzip -c /backups/domino-AAAAMMDD-HHMMSS.sql.gz | psql
 
 **Cloudflare**: com o proxy laranja ligado, deixe o WebSocket ativo (vem ligado) e use `TRUST_PROXY=2`.
 
+**Google**: o servidor monta o `index.html` de cada rota com título, descrição, canonical e Open Graph (`apps/server/src/seo.ts`, textos em `packages/shared/src/seo.ts`) e serve `/robots.txt` e `/sitemap.xml`. Salas, perfil e rotas desconhecidas saem com `noindex`. Depois do primeiro deploy, adicione o domínio no [Google Search Console](https://search.google.com/search-console) (verificação por DNS), envie `https://<domínio>/sitemap.xml` e peça a indexação de `/` e `/como-jogar`.
+
 ## Personagens (retratos e 3D)
 
 - **Retratos**: as ilustrações originais ficam em `apps/web/art/avatares/<id>.jpg`. O comando `node apps/web/scripts/make-avatars.mjs` recorta cada uma em círculo e gera `public/avatars/<id>.webp`. O enquadramento por personagem fica no `TUNE` do script; `--sheet arquivo.png` gera uma folha de contato para conferir.
@@ -146,6 +148,7 @@ Tudo visual é gerado em código (canvas, SVG e geometria low-poly), para não d
 - **Texturas**: em `apps/web/src/three/textures.ts` (tampo da mesa, calçada, faces das pedras).
 - **Modelos glTF** da Figueira e da Catedral: substitua os componentes em `apps/web/src/three/Praca.tsx`.
 - **Avatares**: troque o SVG em `apps/web/src/components/Avatar.tsx` pela arte final. O catálogo fica em `packages/shared/src/avatars.ts`.
+- **Imagem de compartilhamento** (Google, WhatsApp): `node apps/web/scripts/make-og.mjs` gera `public/og-image.jpg` a partir de `art/fundos/praca-1.jpg`.
 - **Sons**: são sintetizados em `apps/web/src/lib/sound.ts` e podem virar gravações reais da praça.
 
 Use só fotos próprias ou licenciadas, e não use a imagem de pessoas reais sem autorização.

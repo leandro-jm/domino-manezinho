@@ -8,6 +8,8 @@ export interface ServerConfig {
   corsOrigins: string[] | null;
   vapid: { publicKey: string; privateKey: string; subject: string } | null;
   webDist: string | null;
+  /** Endereço público (https://..., sem barra no fim): canonical, sitemap e imagens de compartilhamento. `null` = o host da requisição. */
+  publicUrl: string | null;
   /**
    * Pasta do arquivo de estado (mesas em andamento e resultados pendentes) para sobreviver a reinício e deploy.
    * `null` desliga: reiniciar fecha as mesas.
@@ -132,6 +134,7 @@ export const loadConfig = (env: NodeJS.ProcessEnv = process.env): ServerConfig =
     corsOrigins: origins?.length ? origins : null,
     vapid,
     webDist: env.WEB_DIST || null,
+    publicUrl: env.PUBLIC_URL?.trim().replace(/\/+$/, '') || null,
     stateDir: env.STATE_DIR || null,
     trustProxy: proxy(env.TRUST_PROXY),
     rateLimit: env.RATE_LIMIT !== 'false',

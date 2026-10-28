@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { Redirect, Route, Switch, useLocation } from 'wouter';
 import { backdropStyle, randomBackdrop } from './lib/backdrop';
+import { usePageMeta } from './lib/seo';
 import { useSettings } from './lib/settings';
 import { inGame, updateNow, useUpdate } from './lib/update';
 import { InviteToast } from './components/InviteToast';
@@ -28,6 +29,7 @@ export function App() {
   const [location] = useLocation();
   // Fundo dos menus: sorteado a cada vez que o app abre.
   const [backdrop] = useState(randomBackdrop);
+  usePageMeta(location);
 
   const online = useProfile((s) => s.online);
   const updateReady = useUpdate((s) => s.ready);
@@ -64,6 +66,14 @@ export function App() {
   }, [highContrast]);
 
   if (!hasIdentity && location !== '/bem-vindo' && location !== '/como-jogar') {
+    // Na raiz a boas-vindas aparece no lugar, sem redirecionar: é a página que o Google indexa.
+    if (location === '/')
+      return (
+        <>
+          <div className="app-backdrop" style={backdropStyle(backdrop)} aria-hidden="true" />
+          <OnboardingScreen />
+        </>
+      );
     // Guarda o convite (/sala/ABCDE) para voltar a ele depois de criar o perfil.
     if (location.startsWith('/sala/')) sessionStorage.setItem('dm:after-onboarding', location);
     return <Redirect to="/bem-vindo" />;

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ACHIEVEMENTS, achievementProgress, AVATARS, BOT_LEVEL_IDS, BOT_LEVELS, BOT_PERSONAS, EMOTES, avatarById, isAvatarUnlocked, isBotLevel, quickFillLevel, rankTitle, validateNickname } from '../src';
+import { ACHIEVEMENTS, achievementProgress, AVATARS, BOT_LEVEL_IDS, BOT_LEVELS, BOT_PERSONAS, EMOTES, avatarById, isAvatarUnlocked, isBotLevel, pageMeta, quickFillLevel, rankTitle, validateNickname } from '../src';
 
 describe('apelido', () => {
   it('aceita nomes com acento e normaliza espaços', () => {
@@ -74,5 +74,21 @@ describe('conquistas', () => {
     expect(by.cruzada!.done).toBe(true);
     expect(by.fregues).toMatchObject({ done: true, current: 25 });
     expect(by.veterano).toMatchObject({ done: false, current: 30 });
+  });
+});
+
+describe('seo', () => {
+  it('páginas públicas têm título próprio e entram no índice', () => {
+    expect(pageMeta('/como-jogar')).toMatchObject({ canonical: '/como-jogar', index: true });
+    expect(pageMeta('/como-jogar/').canonical).toBe('/como-jogar');
+    expect(pageMeta('/como-jogar').title).not.toBe(pageMeta('/').title);
+  });
+
+  it('boas-vindas aponta pra home', () => {
+    expect(pageMeta('/bem-vindo')).toMatchObject({ canonical: '/', index: true });
+  });
+
+  it('sala, perfil e rota desconhecida ficam fora do Google', () => {
+    for (const path of ['/sala/ABCDE', '/perfil', '/partidas/123', '/qualquer']) expect(pageMeta(path).index).toBe(false);
   });
 });
